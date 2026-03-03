@@ -81,6 +81,7 @@ public class MyReflector {
     
             if ( methodNum < 1 || methodNum > cls.getDeclaredMethods().length ) {
                 sb.append("invalid method number");
+                in.close();
                 return sb.toString();
             }
     
