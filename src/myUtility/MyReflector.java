@@ -8,7 +8,6 @@ public class MyReflector {
         try {
             cls = Class.forName(className);
         } catch (ClassNotFoundException e) {
-            System.out.println("Class not found: " + className);
             return null;
         }
 
