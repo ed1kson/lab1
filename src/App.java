@@ -39,4 +39,8 @@ public class App {
 
         System.out.println("result of invoking add: " + res);
     }
+
+    public static void task4() {
+        
+    }
 }
