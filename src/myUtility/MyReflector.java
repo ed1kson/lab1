@@ -98,7 +98,71 @@ public class MyReflector {
 
         return sb.toString();
     }
+
+    public static Object invokeMethdod(Object obj, String methodName, Object... args) {
+        Class<?> cls = obj.getClass();
+        try {
+            Method method = cls.getMethod(methodName);
+            method.setAccessible(true);
+            return method.invoke(obj, args);
+        } catch (Exception e) {
+            System.out.println("Failed to invoke method: " + e.getMessage());
+        }
+        return null;
+    }
+
+    //gemini's version
+    public static Object invokeMethod(Object obj, String methodName, Object... args) {
+        // Handle null check if calling a static method by passing a Class object instead
+        Class<?> cls = (obj instanceof Class) ? (Class<?>) obj : obj.getClass();
+        
+        try {
+            // 1. Get parameter types from the args array
+            Class<?>[] parameterTypes = new Class<?>[args.length];
+            for (int i = 0; i < args.length; i++) {
+                parameterTypes[i] = args[i].getClass();
+                // Note: This may need adjustment for primitive types (int.class vs Integer.class)
+            }
+
+            // 2. Find the method with the correct signature
+            Method method = cls.getDeclaredMethod(methodName, parameterTypes);
+            
+            method.setAccessible(true);
+            
+            // 3. If it's a static method, 'obj' can be null or the Class itself
+            Object target = (obj instanceof Class) ? null : obj;
+            
+            return method.invoke(target, args);
+            
+        } catch (Exception e) {
+            e.printStackTrace(); // getMessage() is often null for reflection errors
+        }
+        return null;
+    }
     
+    public static Object callMethod(Object obj, String methodName, Object... args) {
+        try {
+            // Визначаємо типи параметрів на основі переданих об'єктів
+            Class<?>[] parameterTypes = new Class[args.length];
+            for (int i = 0; i < args.length; i++) {
+                parameterTypes[i] = args[i].getClass();
+            }
+
+            // Шукаємо метод у класі об'єкта
+            Method method = obj.getClass().getMethod(methodName, parameterTypes);
+
+            // Викликаємо метод та повертаємо результат
+            return method.invoke(obj, args);
+
+        } catch (NoSuchMethodException e) {
+            System.out.println("error: " + e.getMessage());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            System.out.println("error: " + e.getMessage());
+        }
+
+        return null;
+    }
+
     private MyReflector() { }
 
 }

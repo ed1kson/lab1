@@ -1,10 +1,12 @@
 import myUtility.*;
+import testMaterial.additionClass;
+
 import java.util.Scanner;
 
 public class App {
     static Scanner in = new Scanner(System.in);
     public static void main(String[] args) throws Exception {
-        task2();
+        task3();
     }
 
     public static void task1() {
@@ -22,5 +24,11 @@ public class App {
         App a = new App();
         String str = MyReflector.getObjectState(a);
         System.out.println(str);
+    }
+
+    public static void task3() {
+        additionClass ac = new additionClass();
+        Object res = MyReflector.callMethod(ac, "add", 5, 10, 15);
+        System.out.println("result of invoking add: " + res);
     }
 }
