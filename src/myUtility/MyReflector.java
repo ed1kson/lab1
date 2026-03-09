@@ -98,70 +98,46 @@ public class MyReflector {
 
         return sb.toString();
     }
-
-    public static Object invokeMethdod(Object obj, String methodName, Object... args) {
-        Class<?> cls = obj.getClass();
-        try {
-            Method method = cls.getMethod(methodName);
-            method.setAccessible(true);
-            return method.invoke(obj, args);
-        } catch (Exception e) {
-            System.out.println("Failed to invoke method: " + e.getMessage());
-        }
-        return null;
-    }
-
-    //gemini's version
-    public static Object invokeMethod(Object obj, String methodName, Object... args) {
-        // Handle null check if calling a static method by passing a Class object instead
-        Class<?> cls = (obj instanceof Class) ? (Class<?>) obj : obj.getClass();
-        
-        try {
-            // 1. Get parameter types from the args array
-            Class<?>[] parameterTypes = new Class<?>[args.length];
-            for (int i = 0; i < args.length; i++) {
-                parameterTypes[i] = args[i].getClass();
-                // Note: This may need adjustment for primitive types (int.class vs Integer.class)
-            }
-
-            // 2. Find the method with the correct signature
-            Method method = cls.getDeclaredMethod(methodName, parameterTypes);
-            
-            method.setAccessible(true);
-            
-            // 3. If it's a static method, 'obj' can be null or the Class itself
-            Object target = (obj instanceof Class) ? null : obj;
-            
-            return method.invoke(target, args);
-            
-        } catch (Exception e) {
-            e.printStackTrace(); // getMessage() is often null for reflection errors
-        }
-        return null;
-    }
     
-    public static Object callMethod(Object obj, String methodName, Object... args) {
+    public static Object callMethod(Object obj, String methodName, Object... args) throws FunctionNotFoundException {
         try {
-            // Визначаємо типи параметрів на основі переданих об'єктів
             Class<?>[] parameterTypes = new Class[args.length];
             for (int i = 0; i < args.length; i++) {
-                parameterTypes[i] = args[i].getClass();
+                Class<?> c = args[i].getClass();
+                // Конвертуємо типи обгорток у примітиви для коректного пошуку
+                if (c == Integer.class) parameterTypes[i] = int.class;
+                else if (c == Double.class) parameterTypes[i] = double.class;
+                else if (c == Boolean.class) parameterTypes[i] = boolean.class;
+                else if (c == Long.class) parameterTypes[i] = long.class;
+                else if (c == Float.class) parameterTypes[i] = float.class;
+                else if (c == Character.class) parameterTypes[i] = char.class;
+                else if (c == Byte.class) parameterTypes[i] = byte.class;
+                else if (c == Short.class) parameterTypes[i] = short.class;
+                else parameterTypes[i] = c;
             }
 
-            // Шукаємо метод у класі об'єкта
+            // Шукаємо метод саме за примітивними типами
             Method method = obj.getClass().getMethod(methodName, parameterTypes);
+            System.out.println("parameters: ");
+            for ( Type t : method.getParameterTypes() ) {
+                System.out.println("   type: " + t.getTypeName());
+            }
+            System.out.println("args: ");
+            for ( Object o : args ) {
+                System.out.println("   value: " + o);
+            }
 
-            // Викликаємо метод та повертаємо результат
             return method.invoke(obj, args);
 
         } catch (NoSuchMethodException e) {
-            System.out.println("error: " + e.getMessage());
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            System.out.println("error: " + e.getMessage());
+            throw new FunctionNotFoundException("Метод '" + methodName + "' не знайдено.");
+        } catch (Exception e) {
+            System.out.println("Помилка виконання: " + e.getMessage());
+            return null;
         }
-
-        return null;
     }
+
+    
 
     private MyReflector() { }
 

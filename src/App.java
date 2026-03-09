@@ -3,6 +3,8 @@ import testMaterial.additionClass;
 
 import java.util.Scanner;
 
+import javax.naming.NameNotFoundException;
+
 public class App {
     static Scanner in = new Scanner(System.in);
     public static void main(String[] args) throws Exception {
@@ -28,7 +30,13 @@ public class App {
 
     public static void task3() {
         additionClass ac = new additionClass();
-        Object res = MyReflector.callMethod(ac, "add", 5, 10, 15);
+        Object res = null;
+        try {
+            res = MyReflector.callMethod(ac, "add", 5, 10, 15);
+        } catch( FunctionNotFoundException e ) {
+            e.printStackTrace();
+        }
+
         System.out.println("result of invoking add: " + res);
     }
 }
