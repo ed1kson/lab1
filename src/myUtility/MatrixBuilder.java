@@ -52,22 +52,55 @@ public class MatrixBuilder {
     }
 
     public static Object setSize(Object arr, int rows, int columns) {
-        if ( rows <= 0 || columns <= 0 ) return null;
+        if (rows <= 0 || columns <= 0 || arr == null) return null;
+
+        // Отримуємо базовий тип (наприклад, із int[][] отримуємо int)
+        Class<?> componentType = arr.getClass().getComponentType().getComponentType();
+        
+        // Створюємо нову матрицю правильно
+        Object newArr = Array.newInstance(componentType, rows, columns);
 
         int currRows = Array.getLength(arr);
-        int currColumns = Array.getLength(Array.get(arr, 0));
-        Object newArr = create(arr.getClass().arrayType(), rows, columns);
-
         int rowsCopy = Math.min(currRows, rows);
-        int columnsCopy = Math.min(currColumns, columns);
-        System.arraycopy(arr, 0, newArr, 0, rowsCopy);
 
-        for ( int i = 0 ; i<rowsCopy ; i++ ) {
+        for (int i = 0; i < rowsCopy; i++) {
             Object oldRow = Array.get(arr, i);
-            Object newRow = Array.get(newArr, i);
-            System.arraycopy(oldRow, 0, newRow, 0, columnsCopy);
+            Object newRow = Array.get(newArr, i); // Рядок уже створений Array.newInstance
+            
+            if (oldRow != null) {
+                int currCols = Array.getLength(oldRow);
+                int colsCopy = Math.min(currCols, columns);
+                // Копіюємо дані в НОВИЙ рядок
+                System.arraycopy(oldRow, 0, newRow, 0, colsCopy);
+            }
         }
 
         return newArr;
     }
+
+    public static String getString(Object arr) {
+
+        try {
+            Class <?> componentType = arr.getClass().getComponentType();
+            if ( componentType == null ) {
+                return arr.toString();
+            }
+        } catch (NullPointerException e) {
+            return "null";
+        }
+
+        StringBuilder sb = new StringBuilder("[");
+
+        int size = Array.getLength(arr);
+        for ( int i = 0 ; i < size ; i++ ) {
+            sb.append(getString(Array.get(arr, i)));
+            if ( i+1 < size ) {
+                sb.append(", ");
+            }
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
+
 }
