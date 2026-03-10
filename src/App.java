@@ -8,7 +8,26 @@ import java.util.Scanner;
 public class App {
     static Scanner in = new Scanner(System.in);
     public static void main(String[] args) throws Exception {
-        task5();
+        System.out.println("Виберіть завдання(1-5): ");
+        switch (in.nextInt()) {
+            case 1:
+                task1();
+                break;
+            case 2:
+                task2();
+                break;
+            case 3:
+                task3();
+                break;
+            case 4:
+                task4();
+                break;
+            case 5:
+                task5();
+                break;
+            default:
+                System.out.println("Invalid task number");
+        }
     }
 
     public static void task1() {
