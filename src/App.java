@@ -1,12 +1,14 @@
 import myUtility.*;
 import testMaterial.additionClass;
+import consoleTasks.*;
 
+import java.lang.reflect.Proxy;
 import java.util.Scanner;
 
 public class App {
     static Scanner in = new Scanner(System.in);
     public static void main(String[] args) throws Exception {
-        task4();
+        task5();
     }
 
     public static void task1() {
@@ -63,5 +65,17 @@ public class App {
             System.out.println("Error in setSize 2D: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public static void task5() {
+        Evaluatable f = new FFunction(2);
+
+        Evaluatable proxyF = (Evaluatable) Proxy.newProxyInstance(
+            Evaluatable.class.getClassLoader(),
+            new Class<?>[]{Evaluatable.class},
+            new MyHandler(f) 
+        );
+
+        proxyF.evalf(0);
     }
 }
