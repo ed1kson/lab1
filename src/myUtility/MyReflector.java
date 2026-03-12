@@ -16,9 +16,28 @@ public class MyReflector {
 
     public static String getClassInfo(Class<?> clazz) {
         StringBuilder sb = new StringBuilder();
+
+        //for everything
         sb.append("Class Name: " + clazz.getSimpleName() + "\n");
         sb.append("Package: " + clazz.getPackageName() + "\n");
         sb.append("Modifiers: " + Modifier.toString(clazz.getModifiers()) + "\n");
+
+        if ( clazz.isPrimitive() ) { 
+            sb.append("This is a primitive type.");
+            return sb.toString();
+        }
+
+        //for classes and interfaces
+        sb.append("Methods:\n");
+        for (Method method : clazz.getMethods()) {
+            sb.append("  - " + method.toString() + "\n");
+        }
+
+        if ( clazz.isInterface() ) {
+            return sb.toString();
+        }
+
+        //for classes only
         sb.append("Superclass: " + clazz.getSuperclass().getName() + "\n");
         sb.append("Constructors:\n");
         for (Constructor<?> constructor : clazz.getConstructors()) {
@@ -32,46 +51,46 @@ public class MyReflector {
         for (Class<?> iface : clazz.getInterfaces()) {
             sb.append("  - " + iface.toString() + "\n");
         }
-        sb.append("Methods:\n");
-        for (Method method : clazz.getMethods()) {
-            sb.append("  - " + method.toString() + "\n");
-        }
     
         return sb.toString();
     }
     
-    public static String getObjectState(Object obj) {
+    public static void getObjectState(Object obj) {
         Class<?> cls = obj.getClass();
-        StringBuilder sb = new StringBuilder();
 
-        sb.append("fields: \n");
+        System.out.print("fields: \n");
         for ( Field field : cls.getDeclaredFields() ) {
             field.setAccessible(true);
             if ( field.getModifiers() == Modifier.STATIC ) {
                 try {
-                    sb.append("  - (static field)" + field.getName() + " = " + field.get(null) + "\n");
+                    System.out.print("  - (static field)" + field.getName() + " = " + field.get(null) + "\n");
                 } catch (IllegalAccessException e) {
-                    sb.append("  - " + field.getName() + " = " + "ACCESS DENIED\n");
+                    System.out.print("  - " + field.getName() + " = " + "ACCESS DENIED\n");
                 }
             } else {
                 try {
-                    sb.append("  - " + field.getName() + " = " + field.get(obj) + "\n");
+                    System.out.print("  - " + field.getName() + " = " + field.get(obj) + "\n");
                 } catch (IllegalAccessException e) {
-                    sb.append("  - " + field.getName() + " = " + "ACCESS DENIED\n");
+                    System.out.print("  - " + field.getName() + " = " + "ACCESS DENIED\n");
                 }
             }
         }
 
-        sb.append("methods: \n");
+        System.out.print("methods: \n");
         int i = 1;
         for ( Method method : cls.getDeclaredMethods() ) {
             // method.setAccessible(true);
-            sb.append("  " + i + ". " + method.getName() + "\n");
+            System.out.print("  " + i + ". " + method.getName() + "(");
+            for (int j = 0 ; j<method.getParameterCount() ; j ++ ) {
+                System.out.print(method.getParameters()[j].getType());
+                if ( i + 1 < method.getParameterCount()) {
+                    System.out.print(", ");
+                }
+            } 
+            System.out.println(")");
+
             i++;
         }
-
-        //task 2 stuff
-        System.out.println(sb.toString());
 
         java.util.Scanner in = new java.util.Scanner(System.in);
         int numMethods = cls.getDeclaredMethods().length;
@@ -80,23 +99,26 @@ public class MyReflector {
             in.nextLine(); // consume the newline
     
             if ( methodNum < 1 || methodNum > cls.getDeclaredMethods().length ) {
-                sb.append("invalid method number");
+                System.out.println("invalid method number");
                 in.close();
-                return sb.toString();
-            }
+                return;
+                // return sb.toString();
+            } 
     
             Method methodToInvoke = cls.getDeclaredMethods()[methodNum - 1];
+            if ( methodToInvoke.getParameterCount() != 0 ) {
+                System.out.println("Method has a parameter, sorry");
+                in.close();
+                return;
+            }
             methodToInvoke.setAccessible(true);
             try {
                 Object result = methodToInvoke.invoke(obj);
-                sb.append("result of invoking " + methodToInvoke.getName() + ": " + result + "\n");
+                System.out.print("result of invoking " + methodToInvoke.getName() + ": " + result + "\n");
             } catch (Exception e) {
-                sb.append("failed to invoke method: " + e.getMessage() + "\n");
+                System.out.print("failed to invoke method: " + e.getMessage() + "\n");
             }
         in.close();
-        // end of task 2 stuff
-
-        return sb.toString();
     }
     
     public static Object callMethod(Object obj, String methodName, Object... args) throws FunctionNotFoundException {
@@ -116,7 +138,6 @@ public class MyReflector {
                 else parameterTypes[i] = c;
             }
 
-            // Шукаємо метод саме за примітивними типами
             Method method = obj.getClass().getMethod(methodName, parameterTypes);
             System.out.println("parameters: ");
             for ( Type t : method.getParameterTypes() ) {
@@ -136,8 +157,6 @@ public class MyReflector {
             return null;
         }
     }
-
-    
 
     private MyReflector() { }
 

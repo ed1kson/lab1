@@ -54,10 +54,8 @@ public class MatrixBuilder {
     public static Object setSize(Object arr, int rows, int columns) {
         if (rows <= 0 || columns <= 0 || arr == null) return null;
 
-        // Отримуємо базовий тип (наприклад, із int[][] отримуємо int)
         Class<?> componentType = arr.getClass().getComponentType().getComponentType();
         
-        // Створюємо нову матрицю правильно
         Object newArr = Array.newInstance(componentType, rows, columns);
 
         int currRows = Array.getLength(arr);
@@ -65,12 +63,12 @@ public class MatrixBuilder {
 
         for (int i = 0; i < rowsCopy; i++) {
             Object oldRow = Array.get(arr, i);
-            Object newRow = Array.get(newArr, i); // Рядок уже створений Array.newInstance
+            Object newRow = Array.get(newArr, i);
             
             if (oldRow != null) {
                 int currCols = Array.getLength(oldRow);
                 int colsCopy = Math.min(currCols, columns);
-                // Копіюємо дані в НОВИЙ рядок
+
                 System.arraycopy(oldRow, 0, newRow, 0, colsCopy);
             }
         }
